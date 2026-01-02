@@ -19,8 +19,7 @@ public class GetUserByIdUseCase {
     @Transactional(readOnly = true)
     public UserResponse execute(UUID id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado com id: " + id));
         return UserResponse.fromEntity(user);
     }
 }
