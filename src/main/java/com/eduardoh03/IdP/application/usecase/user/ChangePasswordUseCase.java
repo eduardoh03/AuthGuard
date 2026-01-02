@@ -4,6 +4,8 @@ import com.eduardoh03.IdP.application.dto.request.ChangePasswordRequest;
 import com.eduardoh03.IdP.application.dto.response.UserResponse;
 import com.eduardoh03.IdP.application.exception.InvalidCredentialsException;
 import com.eduardoh03.IdP.application.exception.ResourceNotFoundException;
+import com.eduardoh03.IdP.application.service.AuditService;
+import com.eduardoh03.IdP.domain.audit.enums.AuditAction;
 import com.eduardoh03.IdP.domain.user.entity.User;
 import com.eduardoh03.IdP.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,11 @@ public class ChangePasswordUseCase {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
     @Transactional
     public UserResponse execute(UUID userId, ChangePasswordRequest request) {
+        System.err.println("ChangePasswordUseCase.execute");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + userId));
 
@@ -36,6 +40,8 @@ public class ChangePasswordUseCase {
         // Update to new password
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         User updatedUser = userRepository.save(user);
+
+        auditService.log(AuditAction.CHANGE_PASSWORD, "User", userId);
 
         log.info("Password changed successfully for user: {}", user.getEmail());
         return UserResponse.fromEntity(updatedUser);

@@ -1,9 +1,10 @@
 package com.eduardoh03.IdP.domain.user.entity;
 
+import com.eduardoh03.IdP.domain.common.Auditable;
+import com.eduardoh03.IdP.domain.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import com.eduardoh03.IdP.domain.user.enums.Role;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,10 +30,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
     @Column(name = "failed_login_attempts", nullable = false)
     @Builder.Default
