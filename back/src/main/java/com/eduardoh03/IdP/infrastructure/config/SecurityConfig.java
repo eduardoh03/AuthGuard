@@ -61,10 +61,18 @@ public class SecurityConfig {
                                                 .accessDeniedHandler(accessDeniedHandler)
                                                 .authenticationEntryPoint(authenticationEntryPoint))
                                 .authorizeHttpRequests(auth -> auth
+                                                // Public endpoints
                                                 .requestMatchers("/api/auth/**").permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                                                // Admin-only endpoints
+                                                .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                                                 .requestMatchers(HttpMethod.PATCH, "/api/users/{id}/role")
                                                 .hasRole("ADMIN")
+                                                .requestMatchers("/api/audit/**").hasRole("ADMIN")
+                                                // User can access their own profile via /me
+                                                .requestMatchers("/api/users/me/**").authenticated()
+                                                // Other user endpoints need ownership check (done in controller)
+                                                .requestMatchers("/api/users/{id}/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

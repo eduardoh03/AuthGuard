@@ -17,7 +17,7 @@ interface UserInfo {
   email: string
 }
 
-function parseJwt(token: string): { sub?: string; email?: string } | null {
+function parseJwt(token: string): { sub?: string; email?: string; role?: string } | null {
   try {
     const base64Url = token.split('.')[1]
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
@@ -39,6 +39,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<UserInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken")
@@ -47,10 +48,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       return
     }
 
-    // Parse JWT to extract user info
+    // Parse JWT to extract user info and role
     const payload = parseJwt(token)
     if (payload) {
       setUser({ email: payload.sub || payload.email || "Usuário" })
+      setIsAdmin(payload.role === "ADMIN")
     }
     setIsLoading(false)
   }, [router])
@@ -60,11 +62,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     router.push("/login")
   }
 
+  // Navigation items - role-based visibility
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Segurança", href: "/dashboard/security", icon: Lock },
-    { name: "Auditoria", href: "/dashboard/audit", icon: ScrollText },
-  ]
+    { name: "Início", href: "/dashboard", icon: LayoutDashboard, adminOnly: false },
+    { name: "Meu Perfil", href: "/dashboard/security", icon: Lock, adminOnly: false },
+    { name: "Auditoria", href: "/dashboard/audit", icon: ScrollText, adminOnly: true },
+  ].filter(item => !item.adminOnly || isAdmin)
 
   if (isLoading) {
     return (
@@ -95,8 +98,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 key={item.name}
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
               >
                 <Icon className="h-5 w-5" />
@@ -153,8 +156,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                 >
                   <Icon className="h-5 w-5" />

@@ -14,13 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, MoreVertical, Shield, User, Trash2, Loader2 } from "lucide-react"
-import { api, type UserResponse, type ApiError } from "@/lib/api"
+import { Search, MoreVertical, Shield, User, Trash2, Loader2, AlertTriangle } from "lucide-react"
+import { api, type UserResponse, type AdminUserResponse, type ApiError } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 type UserRole = "ADMIN" | "USER"
 
-interface UserWithRole extends UserResponse {
+interface UserWithRole extends AdminUserResponse {
   role: UserRole
 }
 
@@ -28,17 +28,28 @@ export function UserManagement() {
   const [users, setUsers] = useState<UserWithRole[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
-    loadUsers()
+    // Check if user is admin from token
+    const adminStatus = api.isAdmin()
+    setIsAdmin(adminStatus)
+    loadUsers(adminStatus)
   }, [])
 
-  const loadUsers = async () => {
+  const loadUsers = async (adminStatus: boolean) => {
     try {
       setLoading(true)
-      const data = await api.getUsers()
-      setUsers(data as UserWithRole[])
+      if (adminStatus) {
+        // Admin can see all users
+        const data = await api.getUsers()
+        setUsers(data as UserWithRole[])
+      } else {
+        // Regular user can only see their own profile
+        const currentUser = await api.getCurrentUser()
+        setUsers([currentUser as UserWithRole])
+      }
     } catch (error) {
       const apiError = error as ApiError
       toast({
@@ -152,7 +163,7 @@ export function UserManagement() {
               <CardTitle>Gerenciamento de Usuários</CardTitle>
               <CardDescription>Visualize e gerencie todos os usuários do sistema</CardDescription>
             </div>
-            <Button onClick={loadUsers} variant="outline" size="sm">
+            <Button onClick={() => loadUsers(isAdmin)} variant="outline" size="sm">
               Atualizar
             </Button>
           </div>
@@ -170,13 +181,15 @@ export function UserManagement() {
             </div>
           </div>
 
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Função</TableHead>
+                  {isAdmin && <TableHead>Tentativas</TableHead>}
+                  {isAdmin && <TableHead>Status</TableHead>}
                   <TableHead>Criado em</TableHead>
                   <TableHead>Atualizado em</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -190,6 +203,29 @@ export function UserManagement() {
                     </TableCell>
                     <TableCell className="font-medium">{user.email}</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
+                    {isAdmin && (
+                      <TableCell className="text-center">
+                        {user.failedLoginAttempts > 0 ? (
+                          <Badge variant="outline" className="text-orange-600">
+                            {user.failedLoginAttempts}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">0</span>
+                        )}
+                      </TableCell>
+                    )}
+                    {isAdmin && (
+                      <TableCell>
+                        {user.accountLocked ? (
+                          <Badge variant="destructive" className="gap-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            Bloqueado
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">Ativo</Badge>
+                        )}
+                      </TableCell>
+                    )}
                     <TableCell className="text-sm text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(user.updatedAt)}</TableCell>
                     <TableCell className="text-right">
@@ -202,19 +238,23 @@ export function UserManagement() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Ações</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleRoleChange(user.id, user.role === "ADMIN" ? "USER" : "ADMIN")}
-                          >
-                            <Shield className="h-4 w-4 mr-2" />
-                            {user.role === "ADMIN" ? "Rebaixar para Usuário" : "Promover para Admin"}
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
+                          {isAdmin && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => handleRoleChange(user.id, user.role === "ADMIN" ? "USER" : "ADMIN")}
+                              >
+                                <Shield className="h-4 w-4 mr-2" />
+                                {user.role === "ADMIN" ? "Rebaixar para Usuário" : "Promover para Admin"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
                           <DropdownMenuItem
                             onClick={() => handleDeleteUser(user.id)}
                             className="text-destructive focus:text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Excluir Usuário
+                            {isAdmin ? "Excluir Usuário" : "Excluir Minha Conta"}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

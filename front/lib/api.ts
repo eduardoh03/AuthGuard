@@ -95,6 +95,35 @@ class ApiService {
         return response;
     }
 
+    /**
+     * Get current authenticated user's profile
+     */
+    async getCurrentUser(): Promise<UserResponse> {
+        return this.request<UserResponse>('/api/users/me');
+    }
+
+    /**
+     * Get the current user's role from the JWT token
+     */
+    getCurrentUserRole(): 'ADMIN' | 'USER' | null {
+        const token = this.getAccessToken();
+        if (!token) return null;
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.role || 'USER';
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Check if the current user is an admin
+     */
+    isAdmin(): boolean {
+        return this.getCurrentUserRole() === 'ADMIN';
+    }
+
     // User endpoints
     async register(email: string, password: string, role?: string): Promise<UserResponse> {
         return this.request<UserResponse>('/api/users', {
@@ -103,8 +132,8 @@ class ApiService {
         });
     }
 
-    async getUsers(): Promise<UserResponse[]> {
-        return this.request<UserResponse[]>('/api/users');
+    async getUsers(): Promise<AdminUserResponse[]> {
+        return this.request<AdminUserResponse[]>('/api/users');
     }
 
     async getUserById(id: string): Promise<UserResponse> {
@@ -162,6 +191,12 @@ export interface UserResponse {
     role: string;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface AdminUserResponse extends UserResponse {
+    failedLoginAttempts: number;
+    lockoutEndTime: string | null;
+    accountLocked: boolean;
 }
 
 export interface AuditLogResponse {
