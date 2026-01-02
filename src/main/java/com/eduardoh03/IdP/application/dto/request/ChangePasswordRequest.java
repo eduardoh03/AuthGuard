@@ -1,7 +1,6 @@
 package com.eduardoh03.IdP.application.dto.request;
 
 import com.eduardoh03.IdP.application.validation.StrongPassword;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,15 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateUserRequest {
+public class ChangePasswordRequest {
 
-    @NotBlank(message = "Email é obrigatório")
-    @Email(message = "Email inválido")
-    private String email;
+    @NotBlank(message = "Senha atual é obrigatória")
+    private String currentPassword;
 
-    @NotBlank(message = "Senha é obrigatória")
+    @NotBlank(message = "Nova senha é obrigatória")
     @StrongPassword
-    private String password;
-
-    private String role;
+    private String newPassword;
 }

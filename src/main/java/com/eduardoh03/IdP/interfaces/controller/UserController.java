@@ -1,5 +1,7 @@
 package com.eduardoh03.IdP.interfaces.controller;
 
+import com.eduardoh03.IdP.application.dto.request.ChangePasswordRequest;
+import com.eduardoh03.IdP.application.dto.request.ChangeRoleRequest;
 import com.eduardoh03.IdP.application.dto.request.CreateUserRequest;
 import com.eduardoh03.IdP.application.dto.request.UpdateUserRequest;
 import com.eduardoh03.IdP.application.dto.response.UserResponse;
@@ -23,6 +25,8 @@ public class UserController {
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final DeleteUserUseCase deleteUserUseCase;
+    private final ChangePasswordUseCase changePasswordUseCase;
+    private final ChangeRoleUseCase changeRoleUseCase;
 
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -47,6 +51,22 @@ public class UserController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request) {
         UserResponse user = updateUserUseCase.execute(id, request);
+        return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<UserResponse> changePassword(
+            @PathVariable UUID id,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        UserResponse user = changePasswordUseCase.execute(id, request);
+        return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<UserResponse> changeRole(
+            @PathVariable UUID id,
+            @Valid @RequestBody ChangeRoleRequest request) {
+        UserResponse user = changeRoleUseCase.execute(id, request);
         return ResponseEntity.ok(user);
     }
 
