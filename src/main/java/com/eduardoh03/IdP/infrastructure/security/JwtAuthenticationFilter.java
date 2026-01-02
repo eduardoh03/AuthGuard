@@ -51,7 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String role = jwtService.extractRole(jwt);
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Verify user still exists
                 var userExists = userRepository.existsById(UUID.fromString(userId));
 
                 if (userExists) {

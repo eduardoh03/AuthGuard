@@ -27,17 +27,15 @@ public class ChangePasswordUseCase {
 
     @Transactional
     public UserResponse execute(UUID userId, ChangePasswordRequest request) {
-        System.err.println("ChangePasswordUseCase.execute");
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + userId));
 
-        // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
             log.warn("Change password failed - invalid current password for user: {}", user.getEmail());
             throw new InvalidCredentialsException("Senha atual incorreta");
         }
 
-        // Update to new password
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         User updatedUser = userRepository.save(user);
 
