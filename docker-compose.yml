@@ -1,0 +1,55 @@
+services:
+  # Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: idp-postgres
+    environment:
+      POSTGRES_DB: idp_db
+      POSTGRES_USER: idp_user
+      POSTGRES_PASSWORD: idp_password
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U idp_user -d idp_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend - Spring Boot
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: idp-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/idp_db
+      SPRING_DATASOURCE_USERNAME: idp_user
+      SPRING_DATASOURCE_PASSWORD: idp_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend - Next.js
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: idp-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
