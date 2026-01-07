@@ -6,8 +6,10 @@ import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Shield, LayoutDashboard, Lock, ScrollText, LogOut, Menu, X } from "lucide-react"
 import { api } from "@/lib/api"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -51,7 +53,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     // Parse JWT to extract user info and role
     const payload = parseJwt(token)
     if (payload) {
-      setUser({ email: payload.sub || payload.email || "Usuário" })
+      // JWT has 'email' claim with user email, 'sub' contains user ID
+      setUser({ email: payload.email || payload.sub || "Usuário" })
       setIsAdmin(payload.role === "ADMIN")
     }
     setIsLoading(false)
@@ -114,9 +117,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
               <span className="text-sm font-semibold text-primary">{userInitial}</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{userDisplay}</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1 min-w-0 cursor-default">
+                  <p className="text-sm font-medium truncate">{userDisplay}</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {userDisplay}
+              </TooltipContent>
+            </Tooltip>
+            <ThemeToggle />
           </div>
           <Button
             variant="ghost"

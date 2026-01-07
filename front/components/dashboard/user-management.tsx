@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Search, MoreVertical, Shield, User, Trash2, Loader2, AlertTriangle } from "lucide-react"
 import { api, type UserResponse, type AdminUserResponse, type ApiError } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
@@ -104,12 +105,12 @@ export function UserManagement() {
 
   const getRoleBadge = (role: UserRole) => {
     return role === "ADMIN" ? (
-      <Badge variant="outline" className="border-primary text-primary">
+      <Badge className="bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30">
         <Shield className="h-3 w-3 mr-1" />
         Admin
       </Badge>
     ) : (
-      <Badge variant="outline">
+      <Badge className="bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30">
         <User className="h-3 w-3 mr-1" />
         Usuário
       </Badge>
@@ -199,9 +200,25 @@ export function UserManagement() {
                 {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-mono text-xs text-muted-foreground">
-                      {user.id.substring(0, 8)}...
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-default">{user.id.substring(0, 8)}...</span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          {user.id}
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell className="font-medium">{user.email}</TableCell>
+                    <TableCell className="font-medium max-w-[200px]">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-default truncate block">{user.email}</span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          {user.email}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     {isAdmin && (
                       <TableCell className="text-center">
@@ -217,12 +234,14 @@ export function UserManagement() {
                     {isAdmin && (
                       <TableCell>
                         {user.accountLocked ? (
-                          <Badge variant="destructive" className="gap-1">
+                          <Badge className="bg-red-500/20 text-red-700 dark:text-red-300 gap-1">
                             <AlertTriangle className="h-3 w-3" />
                             Bloqueado
                           </Badge>
                         ) : (
-                          <Badge variant="secondary">Ativo</Badge>
+                          <Badge className="bg-green-500/20 text-green-700 dark:text-green-300">
+                            Ativo
+                          </Badge>
                         )}
                       </TableCell>
                     )}

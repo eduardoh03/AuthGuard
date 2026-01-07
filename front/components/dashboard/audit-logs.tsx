@@ -27,27 +27,27 @@ import { useToast } from "@/hooks/use-toast"
 const getEventIcon = (action: string) => {
   switch (action) {
     case "LOGIN":
-      return <LogIn className="h-4 w-4" />
+      return <LogIn className="h-4 w-4 text-green-600 dark:text-green-400" />
     case "LOGIN_FAILED":
-      return <XCircle className="h-4 w-4" />
+      return <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
     case "LOGOUT":
-      return <LogOut className="h-4 w-4" />
+      return <LogOut className="h-4 w-4 text-orange-600 dark:text-orange-400" />
     case "VIEW_USER":
-      return <Eye className="h-4 w-4" />
+      return <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
     case "LIST_USERS":
-      return <List className="h-4 w-4" />
+      return <List className="h-4 w-4 text-blue-600 dark:text-blue-400" />
     case "CREATE_USER":
-      return <User className="h-4 w-4" />
+      return <User className="h-4 w-4 text-green-600 dark:text-green-400" />
     case "UPDATE_USER":
-      return <Edit className="h-4 w-4" />
+      return <Edit className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
     case "DELETE_USER":
-      return <Trash2 className="h-4 w-4" />
+      return <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
     case "CHANGE_PASSWORD":
-      return <Key className="h-4 w-4" />
+      return <Key className="h-4 w-4 text-purple-600 dark:text-purple-400" />
     case "CHANGE_ROLE":
-      return <Shield className="h-4 w-4" />
+      return <Shield className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
     default:
-      return <AlertTriangle className="h-4 w-4" />
+      return <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
   }
 }
 
@@ -56,7 +56,7 @@ const getStatusBadge = (action: string) => {
     return <Badge variant="destructive">Falha</Badge>
   }
   return (
-    <Badge variant="secondary" className="bg-accent/20 text-accent">
+    <Badge variant="secondary" className="bg-green-500/20 text-green-600 dark:text-green-400">
       Sucesso
     </Badge>
   )

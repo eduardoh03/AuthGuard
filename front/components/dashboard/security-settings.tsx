@@ -170,7 +170,7 @@ export function SecuritySettings() {
               <p className="font-medium">Proteção contra Força Bruta</p>
               <p className="text-sm text-muted-foreground">Bloqueio após 5 tentativas falhas (15 minutos)</p>
             </div>
-            <div className="h-2 w-2 rounded-full bg-accent" />
+            <div className="h-2 w-2 rounded-full bg-green-500" />
           </div>
 
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
@@ -178,7 +178,7 @@ export function SecuritySettings() {
               <p className="font-medium">Tokens JWT</p>
               <p className="text-sm text-muted-foreground">Access Token: 15min | Refresh Token: 7 dias</p>
             </div>
-            <div className="h-2 w-2 rounded-full bg-accent" />
+            <div className="h-2 w-2 rounded-full bg-green-500" />
           </div>
 
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
@@ -186,7 +186,7 @@ export function SecuritySettings() {
               <p className="font-medium">Criptografia BCrypt</p>
               <p className="text-sm text-muted-foreground">Senhas armazenadas com hash seguro</p>
             </div>
-            <div className="h-2 w-2 rounded-full bg-accent" />
+            <div className="h-2 w-2 rounded-full bg-green-500" />
           </div>
         </CardContent>
       </Card>
